@@ -1,0 +1,91 @@
+//Să se citească un vector de n numere întregi (alocat dinamic).
+//Să se scrie o funcție care returnează poziția minimului.
+//Să se scrie o funcție care inserează un element nou pe o poziție dată (realocând vectorul).
+//Să se afișeze vectorul înainte și după inserare.
+//Toate operațiile să fie făcute cu pointeri.
+
+#include <iostream>
+using namespace std;
+
+// Functie care afiseaza vectorul
+void afisareVector(int* v, int n) {
+    for (int i = 0; i < n; i++) {
+        cout << "v[" << i << "] = " << v[i] << endl;
+    }
+}
+
+// Functie care returneaza pozitia minimului
+int pozitieMinim(int* v, int n) {
+    int pozMin = 0;  // presupunem ca minimul e pe poz 0
+    for (int i = 1; i < n; i++) {
+        if (v[i] < v[pozMin])   // daca gasim un nr mai mic
+            pozMin = i;         // actualizam pozitia
+    }
+    return pozMin;
+}
+
+// Functie care insereaza un element pe o pozitie data
+void inserareElement(int** v, int* n, int poz, int valoareNoua) {
+
+    // Cream un vector nou cu o pozitie mai mare
+    int* copie = new int[*n + 1];
+
+    int j = 0;
+    for (int i = 0; i < *n + 1; i++) {
+        if (i == poz) {
+            copie[i] = valoareNoua;  // inserez elementul nou
+        } else {
+            copie[i] = (*v)[j];  // copiez elementele vechi
+            j++;
+        }
+    }
+
+    // stergem vechiul vector
+    delete[] *v;
+
+    // facem vectorul original sa pointeze spre cel nou
+    *v = copie;
+
+    // crestem dimensiunea
+    (*n)++;
+}
+
+int main() {
+
+    int n;
+    cout << "Dimensiune vector = ";
+    cin >> n;
+
+    // Alocam vectorul dinamic
+    int* v = new int[n];
+
+    // Citim elementele vectorului
+    for (int i = 0; i < n; i++) {
+        cout << "v[" << i << "] = ";
+        cin >> v[i];
+    }
+
+    cout << "\nVectorul initial:\n";
+    afisareVector(v, n);
+
+    // Aflam pozitia minimului
+    int pozMin = pozitieMinim(v, n);
+    cout << "\nPozitia minimului este: " << pozMin << endl;
+
+    // Inseram un nou element pe o pozitie aleasa
+    int poz, val;
+    cout << "\nIntrodu pozitia la care inserezi: ";
+    cin >> poz;
+    cout << "Introdu valoarea noua: ";
+    cin >> val;
+
+    inserareElement(&v, &n, poz, val);
+
+    cout << "\nVectorul dupa inserare:\n";
+    afisareVector(v, n);
+
+    // eliberam memoria
+    delete[] v;
+
+    return 0;
+}
