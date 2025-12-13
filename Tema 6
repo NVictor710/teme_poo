@@ -1,0 +1,107 @@
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+class ExceptiePret : public exception {
+public:
+	ExceptiePret(const char* mesaj) : exception(mesaj) {}
+};
+
+class Serviciu {
+protected:
+	const int id;
+	string nume;
+	float cost;
+public:
+	static const float COST_MINIM;
+
+	Serviciu() : id(0), nume("Serviciu default"), cost(100) {}
+
+	Serviciu(int idS, string numeS, float costS) : id(idS), nume(numeS), cost(costS) {
+		if (cost < COST_MINIM) {
+			throw ExceptiePret("Costul este sub limita minima!");
+		}
+	}
+
+	virtual void afisare() {
+		cout << endl << "Id: " << id;
+		cout << endl << "Nume: " << nume;
+		cout << endl << "Cost: " << cost;
+	}
+
+	virtual float calculDiscount() = 0;
+
+	virtual ~Serviciu() {}
+};
+
+const float Serviciu::COST_MINIM = 1;
+
+class ServiciuPremium : public Serviciu {
+private:
+	float discount;
+public:
+	ServiciuPremium() : Serviciu(), discount(5) {}
+
+	ServiciuPremium(int id, string nume, float cost, float discount)
+		: Serviciu(id, nume, cost), discount(discount) {}
+
+	void afisare() {
+		Serviciu::afisare();
+		cout << endl << "Discount: " << discount << "%";
+	}
+
+	float calculDiscount() {
+		return discount;
+	}
+};
+
+class Calculator {
+public:
+	virtual float aduna(float a, float b) = 0;
+	virtual float scade(float a, float b) = 0;
+	virtual float inmulteste(float a, float b) = 0;
+	virtual float imparte(float a, float b) = 0;
+};
+
+class CalculatorBasic : public Calculator {
+public:
+	float aduna(float a, float b) {
+		return a + b;
+	}
+
+	float scade(float a, float b) {
+		return a - b;
+	}
+
+	float inmulteste(float a, float b) {
+		return a * b;
+	}
+
+	float imparte(float a, float b) {
+		if (b == 0) {
+			throw ExceptiePret("Impartire la zero!");
+		}
+		return a / b;
+	}
+};
+
+void main() {
+	Serviciu* servicii[3];
+
+	servicii[0] = new ServiciuPremium(1, "Internet", 50, 10);
+	servicii[1] = new ServiciuPremium(2, "Televiziune", 40, 8);
+	servicii[2] = new ServiciuPremium(3, "Telefonie", 30, 12);
+
+	for (int i = 0; i < 3; i++) {
+		servicii[i]->afisare();
+		cout << endl << "Discount aplicat: " << servicii[i]->calculDiscount() << "%";
+		delete servicii[i];
+	}
+
+	Calculator* calc = new CalculatorBasic();
+	cout << endl << "Rezultat adunare: " << calc->aduna(10, 5);
+	cout << endl << "Rezultat inmultire: " << calc->inmulteste(4, 3);
+
+	delete calc;
+}
