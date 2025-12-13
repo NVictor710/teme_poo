@@ -1,0 +1,161 @@
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+enum Gen { SF = 1, DRAMA = 2, EDUCATIONAL = 3 };
+
+class Carte {
+private:
+	const int id;
+	string titlu;
+	float pret;
+	Gen gen;
+	int nrCapitole;
+	int* pagini;
+	static int nrCarti;
+
+public:
+	// constructor default
+	Carte() : id(++nrCarti) {
+		titlu = "Carte default";
+		pret = 0;
+		gen = EDUCATIONAL;
+		nrCapitole = 0;
+		pagini = nullptr;
+	}
+
+	// constructor cu parametri
+	Carte(string titlu, float pret, Gen gen, int nrCapitole, int* pagini)
+		: id(++nrCarti) {
+		this->titlu = titlu;
+		this->pret = pret;
+		this->gen = gen;
+		this->nrCapitole = nrCapitole;
+
+		this->pagini = new int[nrCapitole];
+		for (int i = 0; i < nrCapitole; i++) {
+			this->pagini[i] = pagini[i];
+		}
+
+		delete[] pagini;
+	}
+
+	// constructor de copiere
+	Carte(const Carte& c) : id(++nrCarti) {
+		titlu = c.titlu;
+		pret = c.pret;
+		gen = c.gen;
+		nrCapitole = c.nrCapitole;
+
+		if (c.pagini != nullptr) {
+			pagini = new int[nrCapitole];
+			for (int i = 0; i < nrCapitole; i++) {
+				pagini[i] = c.pagini[i];
+			}
+		}
+		else {
+			pagini = nullptr;
+		}
+	}
+
+	// operator =
+	void operator=(const Carte& c) {
+		titlu = c.titlu;
+		pret = c.pret;
+		gen = c.gen;
+		nrCapitole = c.nrCapitole;
+
+		if (pagini != nullptr) {
+			delete[] pagini;
+		}
+
+		if (c.pagini != nullptr) {
+			pagini = new int[nrCapitole];
+			for (int i = 0; i < nrCapitole; i++) {
+				pagini[i] = c.pagini[i];
+			}
+		}
+		else {
+			pagini = nullptr;
+		}
+	}
+
+	// operator +=
+	void operator+=(float valoare) {
+		pret += valoare;
+	}
+
+	// operator >
+	bool operator>(const Carte& c) {
+		return pret > c.pret;
+	}
+
+	// operator !
+	bool operator!() {
+		return pret > 0;
+	}
+
+	// operator ()
+	float operator()(float valoare) {
+		return pret + valoare;
+	}
+
+	// operator []
+	int& operator[](int index) {
+		if (index >= 0 && index < nrCapitole) {
+			return pagini[index];
+		}
+		else {
+			throw exception();
+		}
+	}
+
+	// operator <<
+	friend void operator<<(ostream& out, Carte c) {
+		out << endl << c.id << ". " << c.titlu
+			<< " | pret: " << c.pret
+			<< " | capitole: " << c.nrCapitole;
+	}
+
+	// cast explicit
+	explicit operator int() {
+		return nrCapitole;
+	}
+
+	// destructor
+	~Carte() {
+		if (pagini != nullptr) {
+			delete[] pagini;
+		}
+	}
+};
+
+int Carte::nrCarti = 0;
+
+int main() {
+	Carte c1;
+
+	int* pag = new int[3]{ 10, 20, 30 };
+	Carte* c2 = new Carte("Dune", 80, SF, 3, pag);
+
+	cout << c1;
+	cout << *c2;
+
+	c1 = *c2;
+	c1 += 10;
+	cout << c1;
+
+	if (c1 > *c2) {
+		cout << endl << "c1 este mai scumpa";
+	}
+
+	cout << endl << c1(5);
+
+	(*c2)[0] = 15;
+	cout << endl << (*c2)[0];
+
+	cout << endl << (int)c1;
+
+	delete c2;
+}
