@@ -1,0 +1,100 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+class CompanieIT {
+private:
+    string denumire = "Necunoscuta";
+    char* locatie = nullptr;
+    int nrAngajati = 0;
+    bool areProfit = true;
+
+public:
+    // constructor implicit
+    CompanieIT() {}
+
+    // constructor cu parametri
+    CompanieIT(string denumire, const char* locatie, int nrAngajati, bool areProfit) {
+        this->denumire = denumire;
+        this->nrAngajati = nrAngajati;
+        this->areProfit = areProfit;
+
+        this->locatie = new char[strlen(locatie) + 1];
+        strcpy_s(this->locatie, strlen(locatie) + 1, locatie);
+    }
+
+    // copy constructor
+    CompanieIT(const CompanieIT& copie) {
+        this->denumire = copie.denumire;
+        this->nrAngajati = copie.nrAngajati;
+        this->areProfit = copie.areProfit;
+
+        if (copie.locatie != nullptr) {
+            this->locatie = new char[strlen(copie.locatie) + 1];
+            strcpy_s(this->locatie, strlen(copie.locatie) + 1, copie.locatie);
+        } else {
+            this->locatie = nullptr;
+        }
+    }
+
+    // destructor
+    ~CompanieIT() {
+        if (locatie != nullptr) {
+            delete[] locatie;
+        }
+    }
+
+    // operator de afisare in consola
+    friend void operator<<(ostream& out, CompanieIT c) {
+        out << endl << "Denumire: " << c.denumire;
+        out << endl << "Nr angajati: " << c.nrAngajati;
+        out << endl << (c.areProfit ? "Are profit" : "Nu are profit");
+        out << endl << "Locatie: " << (c.locatie != nullptr ? string(c.locatie) : "Locatie default");
+    }
+
+    // operator de scriere in fisier
+    friend void operator<<(fstream& outFile, CompanieIT c) {
+        outFile << c.denumire << endl;
+        outFile << c.nrAngajati << endl;
+        outFile << c.areProfit << endl;
+        outFile << (c.locatie != nullptr ? c.locatie : "Nedefinita") << endl;
+    }
+
+    // operator de citire din fisier
+    friend void operator>>(ifstream& inFile, CompanieIT& c) {
+        getline(inFile, c.denumire);
+        inFile >> c.nrAngajati;
+        inFile >> c.areProfit;
+        inFile.ignore(); // ignoram newline
+
+        if (c.locatie != nullptr) {
+            delete[] c.locatie;
+            c.locatie = nullptr;
+        }
+
+        char buffer[50];
+        inFile.getline(buffer, 50);
+        c.locatie = new char[strlen(buffer) + 1];
+        strcpy_s(c.locatie, strlen(buffer) + 1, buffer);
+    }
+};
+
+void main() {
+    CompanieIT google("Google", "SiliconValley", 15000, true);
+
+    // salvam in fisier
+    fstream fileOut("CompanieIT.txt", ios::out);
+    fileOut << google;
+    fileOut.close();
+
+    // citim din fisier intr-o copie
+    CompanieIT googleCopie;
+    ifstream fileIn("CompanieIT.txt", ios::in);
+    fileIn >> googleCopie;
+    fileIn.close();
+
+    // afisam copia
+    cout << googleCopie;
+}
