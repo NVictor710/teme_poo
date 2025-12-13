@@ -1,0 +1,80 @@
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+class Produs {
+private:
+    string denumire;
+    float pret;
+public:
+    Produs() : denumire("Produs default"), pret(0) {}
+
+    Produs(string denumire, float pret) {
+        this->denumire = denumire;
+        this->pret = pret;
+    }
+
+    float getPret() {
+        return pret;
+    }
+
+    string getDenumire() {
+        return denumire;
+    }
+};
+
+class CosCumparaturi {
+private:
+    Produs* produse;
+    int nrProduse;
+public:
+    CosCumparaturi(int nrProduse, string* denumiri, float* preturi) {
+        this->nrProduse = nrProduse;
+        this->produse = new Produs[nrProduse];
+        for (int i = 0; i < nrProduse; i++) {
+            this->produse[i] = Produs(denumiri[i], preturi[i]);
+        }
+    }
+
+    Produs& operator[](int index) {
+        if (index >= 0 && index < nrProduse) {
+            return produse[index];
+        } else {
+            throw "Indexul este in afara intervalului!";
+        }
+    }
+
+    CosCumparaturi(const CosCumparaturi& copie) {
+        nrProduse = copie.nrProduse;
+        produse = new Produs[nrProduse];
+        for (int i = 0; i < nrProduse; i++) {
+            produse[i] = copie.produse[i];
+        }
+    }
+
+    ~CosCumparaturi() {
+        delete[] produse;
+    }
+
+    void afisareTotal() {
+        float total = 0;
+        for (int i = 0; i < nrProduse; i++) {
+            total += produse[i].getPret();
+        }
+        cout << endl << "Total cos: " << total << " lei";
+    }
+};
+
+void main() {
+    string denumiri[3] = { "Lapte", "Paine", "Oua" };
+    float preturi[3] = { 5.5, 3, 12 };
+
+    CosCumparaturi cos(3, denumiri, preturi);
+
+    cout << endl << "Pretul primului produs: " << cos[0].getPret() << " lei";
+    cout << endl << "Denumire al doilea produs: " << cos[1].getDenumire();
+
+    CosCumparaturi cos2 = cos;  // copie
+    cos2.afisareTotal();
+}
