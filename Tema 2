@@ -1,0 +1,72 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Carte {
+private:
+    const int id;
+    string titlu;
+    float pret;
+    int nrCapitole;
+    int* pagini;
+    static int nrCarti;
+
+public:
+    // constructor default
+    Carte() : id(++nrCarti) {
+        this->titlu = "Carte default";
+        this->pret = 0;
+        this->nrCapitole = 0;
+        this->pagini = nullptr;
+    }
+
+    // constructor cu parametri
+    Carte(string titlu, float pret, int nrCapitole, int* paginiPrimite)
+        : id(++nrCarti) {
+        this->titlu = titlu;
+        this->pret = pret;
+        this->nrCapitole = nrCapitole;
+        this->pagini = new int[this->nrCapitole];
+        for (int i = 0; i < this->nrCapitole; i++) {
+            this->pagini[i] = paginiPrimite[i];
+        }
+
+        delete[] paginiPrimite;
+    }
+
+    void afisareCarte() {
+        cout << endl << id << ". Cartea \"" << titlu
+             << "\" costa " << pret << " lei si are "
+             << nrCapitole << " capitole: ";
+        if (pagini != nullptr) {
+            for (int i = 0; i < nrCapitole - 1; i++) {
+                cout << pagini[i] << " pagini, ";
+            }
+            cout << pagini[nrCapitole - 1] << " pagini.";
+        }
+    }
+
+    ~Carte() {
+        if (pagini != nullptr) {
+            delete[] pagini;
+        }
+    }
+};
+
+int Carte::nrCarti = 0;
+
+int main() {
+
+    Carte carte1;
+    carte1.afisareCarte();
+
+    int* pagini = new int[3]{ 50, 70, 100 };
+    Carte* carte2 = new Carte("Programare C++", 120, 3, pagini);
+
+    carte2->afisareCarte();
+
+    delete carte2;
+
+    return 0;
+}
