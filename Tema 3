@@ -1,0 +1,129 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+enum TipBautura { RACORITOARE = 1, ALCOOLICA = 2, ENERGETICA = 3 };
+
+class Bautura {
+private:
+    const int id;
+    string denumire;
+    float pret;
+    TipBautura tip;
+    int nrIngrediente;
+    float* cantitati;
+    static int nrBauturi;
+
+public:
+    // constructor default
+    Bautura() : id(++nrBauturi) {
+        denumire = "Bautura default";
+        pret = 0;
+        tip = RACORITOARE;
+        nrIngrediente = 0;
+        cantitati = nullptr;
+    }
+
+    // constructor cu parametri
+    Bautura(string denumire, float pret, int nrIngrediente, float* cantitatiPrimite, TipBautura tip)
+        : id(++nrBauturi) {
+        this->denumire = denumire;
+        this->pret = pret;
+        this->tip = tip;
+        this->nrIngrediente = nrIngrediente;
+
+        this->cantitati = new float[nrIngrediente];
+        for (int i = 0; i < nrIngrediente; i++) {
+            this->cantitati[i] = cantitatiPrimite[i];
+        }
+
+        delete[] cantitatiPrimite;
+    }
+
+    void afisare() {
+        cout << endl << id << ". Bautura " << denumire
+             << " costa " << pret << " lei, tip ";
+        if (tip == RACORITOARE) cout << "RACORITOARE";
+        if (tip == ALCOOLICA) cout << "ALCOOLICA";
+        if (tip == ENERGETICA) cout << "ENERGETICA";
+
+        cout << ", ingrediente: ";
+        if (cantitati != nullptr) {
+            for (int i = 0; i < nrIngrediente; i++) {
+                cout << cantitati[i] << " ml ";
+            }
+        }
+    }
+
+    int getNrIngrediente() {
+        return nrIngrediente;
+    }
+
+    void setNrIngrediente(int nrNou) {
+        if (nrNou > 0)
+            nrIngrediente = nrNou;
+        else
+            throw "Numar invalid de ingrediente";
+    }
+
+    float* getCantitati() {
+        float* copie = new float[nrIngrediente];
+        for (int i = 0; i < nrIngrediente; i++) {
+            copie[i] = cantitati[i];
+        }
+        return copie;
+    }
+
+    void setCantitati(float* cantitatiNoi, int nrNou) {
+        setNrIngrediente(nrNou);
+
+        if (cantitati != nullptr)
+            delete[] cantitati;
+
+        cantitati = new float[nrIngrediente];
+        for (int i = 0; i < nrIngrediente; i++) {
+            cantitati[i] = cantitatiNoi[i];
+        }
+
+        delete[] cantitatiNoi;
+    }
+
+    ~Bautura() {
+        if (cantitati != nullptr)
+            delete[] cantitati;
+    }
+};
+
+int Bautura::nrBauturi = 0;
+
+int main() {
+
+    Bautura b1;
+    b1.afisare();
+
+    float* cant = new float[3]{ 200, 100, 50 };
+    Bautura* b2 = new Bautura("Energizant", 12, 3, cant, ENERGETICA);
+    b2->afisare();
+
+    try {
+        b2->setNrIngrediente(2);
+    }
+    catch (const char* msg) {
+        cout << endl << msg;
+    }
+
+    cout << endl << "Nr ingrediente: " << b2->getNrIngrediente();
+
+    b2->setCantitati(new float[2]{150, 80}, 2);
+    float* cantActuale = b2->getCantitati();
+
+    for (int i = 0; i < b2->getNrIngrediente(); i++) {
+        cout << endl << "Cantitate[" << i << "] = " << cantActuale[i];
+    }
+
+    delete[] cantActuale;
+    delete b2;
+
+    return 0;
+}
