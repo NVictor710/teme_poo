@@ -1,0 +1,143 @@
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+enum TipFilm { DRAMA = 1, ACTIUNE = 2, COMEDIE = 3 };
+
+class Film {
+private:
+	const int id;
+	string titlu;
+	float rating;
+	int nrActori;
+	int* durate;
+	TipFilm tip;
+	static int nrFilme;
+
+public:
+	// constructor default
+	Film() : id(++nrFilme) {
+		titlu = "Film default";
+		rating = 0;
+		nrActori = 0;
+		durate = nullptr;
+		tip = DRAMA;
+	}
+
+	// constructor cu parametri
+	Film(string titlu, float rating, int nrActori, int* durate, TipFilm tip)
+		: id(++nrFilme) {
+		this->titlu = titlu;
+		this->rating = rating;
+		this->nrActori = nrActori;
+		this->tip = tip;
+
+		this->durate = new int[nrActori];
+		for (int i = 0; i < nrActori; i++) {
+			this->durate[i] = durate[i];
+		}
+
+		delete[] durate;
+	}
+
+	// constructor de copiere
+	Film(const Film& f) : id(++nrFilme) {
+		titlu = f.titlu;
+		rating = f.rating;
+		nrActori = f.nrActori;
+		tip = f.tip;
+
+		if (f.durate != nullptr) {
+			durate = new int[nrActori];
+			for (int i = 0; i < nrActori; i++) {
+				durate[i] = f.durate[i];
+			}
+		}
+		else {
+			durate = nullptr;
+		}
+	}
+
+	// operator =
+	void operator=(const Film& f) {
+		titlu = f.titlu;
+		rating = f.rating;
+		nrActori = f.nrActori;
+		tip = f.tip;
+
+		if (durate != nullptr) {
+			delete[] durate;
+		}
+
+		if (f.durate != nullptr) {
+			durate = new int[nrActori];
+			for (int i = 0; i < nrActori; i++) {
+				durate[i] = f.durate[i];
+			}
+		}
+		else {
+			durate = nullptr;
+		}
+	}
+
+	// afisare
+	void afisare() {
+		cout << endl << id << ". " << titlu << " | rating: " << rating << " | tip: ";
+		if (tip == DRAMA) cout << "DRAMA";
+		if (tip == ACTIUNE) cout << "ACTIUNE";
+		if (tip == COMEDIE) cout << "COMEDIE";
+
+		cout << " | durate actori: ";
+		if (durate != nullptr) {
+			for (int i = 0; i < nrActori; i++) {
+				cout << durate[i] << " ";
+			}
+		}
+	}
+
+	// operator +=
+	void operator+=(float valoare) {
+		rating += valoare;
+	}
+
+	// operator >
+	bool operator>(const Film& f) {
+		return rating > f.rating;
+	}
+
+	// destructor
+	~Film() {
+		if (durate != nullptr) {
+			delete[] durate;
+		}
+	}
+};
+
+int Film::nrFilme = 0;
+
+int main() {
+	Film f1;
+
+	int* d = new int[3]{ 10, 15, 20 };
+	Film* f2 = new Film("Matrix", 9.5, 3, d, ACTIUNE);
+
+	f1.afisare();
+	f2->afisare();
+
+	Film f3(*f2);
+	f3.afisare();
+
+	f1 = *f2;
+	f1 += 0.5;
+	f1.afisare();
+
+	if (f3 > f1) {
+		cout << endl << "f3 are rating mai mare";
+	}
+	else {
+		cout << endl << "f1 are rating mai mare";
+	}
+
+	delete f2;
+}
